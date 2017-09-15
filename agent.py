@@ -103,11 +103,13 @@ class LearningAgent(Agent):
         # When learning, check if the 'state' is not in the Q-table
         # If it is not, create a new dictionary for that state
         #   Then, for each action available, set the initial Q-value to 0.0
-        if self.learning:
-            if (state in self.Q.keys()):
-                return None
-            else:
-                self.Q[state] = {self.valid_actions[0]:0.0, self.valid_actions[1]:0.0, self.valid_actions[2]:0.0, self.valid_actions[3]:0.0}
+#        if self.learning:
+#            if (state in self.Q.keys()):
+#                return None
+#            else:
+#                self.Q[state] = {self.valid_actions[0]:0.0, self.valid_actions[1]:0.0, self.valid_actions[2]:0.0, self.valid_actions[3]:0.0}
+        if self.learning and state not in self.Q.keys():
+            self.Q[state] = {a : 0.0 for a in self.valid_actions}
         return
 
 
@@ -131,9 +133,11 @@ class LearningAgent(Agent):
             if self.epsilon > random.random():
                 action = random.choice(self.valid_actions)
             else:
-                action = self.Q[state].keys()[(self.Q[state].values()).index(self.get_maxQ(state))]
-#                action = self.get_maxQ(state)
-#                action = max(self.Q[state])
+                maxq_lst=[]
+                for act in self.valid_actions:
+                    if self.Q[state][act] == self.get_maxQ(state):
+                        maxq_lst.append(act)
+                action = random.choice(maxq_lst)              
         else:
             action = random.choice(self.valid_actions)
         return action
@@ -150,8 +154,8 @@ class LearningAgent(Agent):
         # When learning, implement the value iteration update rule
         #   Use only the learning rate 'alpha' (do not use the discount factor 'gamma')
         if self.learning:
-#            self.Q[state][action] = (1-self.alpha)*self.Q[state][action] + self.alpha*reward
-            self.Q[state][action] = (1 - self.alpha)*self.get_maxQ(state) + (reward * self.alpha)
+            self.Q[state][action] = (1-self.alpha)*self.Q[state][action] + self.alpha*reward
+#            self.Q[state][action] = (1 - self.alpha)*self.get_maxQ(state) + (reward * self.alpha)
         return
 
 
